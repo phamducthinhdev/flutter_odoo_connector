@@ -8,7 +8,9 @@ class PurchaseService {
         'model': 'purchase.order',
         'method': 'search_read',
         'args': [],
-        'kwargs': {},
+        'kwargs': {
+          'order': 'id desc',
+        },
       });
       return res;
     } catch (e) {
@@ -27,7 +29,9 @@ class PurchaseService {
             ['picking_type_id.code', '=', 'incoming']
           ]
         ],
-        'kwargs': {},
+        'kwargs': {
+          'order': 'id desc',
+        },
       });
       return res;
     } catch (e) {
@@ -42,7 +46,9 @@ class PurchaseService {
         'model': 'account.move',
         'method': 'search_read',
         'args': [],
-        'kwargs': {},
+        'kwargs': {
+          'order': 'id desc',
+        },
       });
       return res;
     } catch (e) {

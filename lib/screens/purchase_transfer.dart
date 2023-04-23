@@ -201,9 +201,9 @@ class _PurchaseTransferState extends State<PurchaseTransfer> {
                                 Text(records[i]['product_uom_qty'].toString())),
                             DataCell(
                               Text(records[i]['quantity_done'].toString()),
-                              showEditIcon: records[i]['has_tracking'] == 'none'
-                                  ? true
-                                  : false,
+                              showEditIcon: records[i]['has_tracking'] != 'none'
+                                  ? false
+                                  : true,
                               onTap: records[i]['has_tracking'] != 'none'
                                   ? null
                                   : () => handleQtyDoneUpdate(records[i]['id']),
@@ -213,17 +213,11 @@ class _PurchaseTransferState extends State<PurchaseTransfer> {
                                 ? IconButton(
                                     icon: const Icon(Icons.view_list),
                                     onPressed: () {
-                                      // print(records[i]);
-                                      // print(records[i].runtimeType);
-                                      // final record =
-                                      //     records[i] as Map<String, dynamic>;
                                       Navigator.of(context).pushNamed(
                                           '/purchase/transfer/move',
                                           arguments: {
                                             "transfer_move": records[i]
                                           });
-                                      // handleProductReception(records[i]['id'],
-                                      //     records[i]['has_tracking']);
                                     })
                                 : const SizedBox.shrink()),
                           ]));
@@ -244,9 +238,7 @@ class _PurchaseTransferState extends State<PurchaseTransfer> {
                                           DataColumn(
                                               label: Text('Demand'),
                                               numeric: true),
-                                          DataColumn(
-                                              label: Text('Done'),
-                                              numeric: true),
+                                          DataColumn(label: Text('Done')),
                                           DataColumn(label: Text('Tracking')),
                                           DataColumn(label: Text('')),
                                         ],

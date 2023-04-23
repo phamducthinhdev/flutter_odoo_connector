@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:odoo_rpc/odoo_rpc.dart';
-import 'package:odoo_connector/services/purchase.dart';
+import 'package:odoo_connector/services/invoice.dart';
 
 class PurchaseInvoices extends StatefulWidget {
   const PurchaseInvoices({super.key});
@@ -12,7 +12,7 @@ class PurchaseInvoices extends StatefulWidget {
 
 class _PurchaseInvoicesState extends State<PurchaseInvoices> {
   Future? _invoices;
-  final PurchaseService _purchaseService = PurchaseService();
+  final InvoiceService _invoiceService = InvoiceService();
 
   @override
   void initState() {
@@ -22,7 +22,7 @@ class _PurchaseInvoicesState extends State<PurchaseInvoices> {
 
   void _loadRecords() {
     OdooClient client = context.read<OdooClient>();
-    _invoices = _purchaseService.fetchPurchaseOrders(client);
+    _invoices = _invoiceService.getInvoices(client);
   }
 
   @override

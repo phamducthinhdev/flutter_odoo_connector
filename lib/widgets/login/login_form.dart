@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:odoo_connector/services/auth.dart';
 import 'package:odoo_connector/widgets/login/login_field.dart';
 import 'package:odoo_rpc/odoo_rpc.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:provider/provider.dart';
-import 'package:odoo_connector/services/purchase.dart';
-import 'package:hive/hive.dart';
 
 class LoginForm extends StatefulWidget {
   final Function setLoading;
@@ -19,13 +15,17 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
 
-  var box = Hive.box('myBox');
-
   // Inputs controllers
   final urlController = TextEditingController();
   final dbController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+
+  String error = '';
+
+  void setError(String err) {
+    setState(() => error = err);
+  }
 
   Future<void> handleSignIn(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
@@ -37,7 +37,15 @@ class _LoginFormState extends State<LoginForm> {
       print(orpc.baseURL);
       OdooSession? session = await AuthService(odooClientInstance: orpc)
           .odooAuthenticate(dbController.text, usernameController.text,
-              passwordController.text);
+              passwordController.text)
+          .catchError(
+        (e) {
+          print('Catched error message : ${e.message}');
+          setError(e.toString());
+          return null;
+        },
+      );
+      // .catchError(() {});
       if (session != null) {
         print('logged in');
         navigator.popAndPushNamed('/purchase');
@@ -79,6 +87,8 @@ class _LoginFormState extends State<LoginForm> {
             hintText: 'Password',
             obscureText: true,
           ),
+          const SizedBox(height: 25),
+          Text(error),
           const SizedBox(height: 25),
           // Sign in button
           ElevatedButton(

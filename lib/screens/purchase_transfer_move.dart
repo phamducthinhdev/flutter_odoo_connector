@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:odoo_rpc/odoo_rpc.dart';
 import 'package:odoo_connector/services/transfer.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'dart:async';
 
 class PurchaseTransferMove extends StatefulWidget {
   const PurchaseTransferMove({super.key});
@@ -11,59 +13,107 @@ class PurchaseTransferMove extends StatefulWidget {
 }
 
 class _PurchaseTransferMoveState extends State<PurchaseTransferMove> {
+  String _scanBarcode = 'Unknown';
   final TransferService _transferService = TransferService();
   Map<String, dynamic>? _transferMove;
   Future? _transferMoveLines;
 
-  void handleTransferMoveLineScanCreate() {
-    print('test');
+  void handleTransferMoveLineScanCreate() async {
+    String barcodeScanRes;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      print(barcodeScanRes);
+    } catch (e) {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _scanBarcode = barcodeScanRes;
+    });
   }
 
   Future<void> handleTransferMoveLineManualCreate(
       Map<String, dynamic>? transferMove) {
+    final alertFormKey = GlobalKey<FormState>();
     return showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           final navigator = Navigator.of(context);
           TextEditingController serialNumberController =
               TextEditingController();
-          TextEditingController doneQtyController = TextEditingController();
+          TextEditingController doneQtyController =
+              TextEditingController(text: '1');
           return AlertDialog(
-            title: const Text('Enter done quantity'),
-            content: Column(
-              children: [
-                TextField(
-                  controller: serialNumberController,
+            scrollable: true,
+            title: const Text('Add manually'),
+            content: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Form(
+                key: alertFormKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Serial number',
+                        // icon: Icon(Icons.account_box),
+                      ),
+                      controller: serialNumberController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a serial number.';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Quantity',
+                        // icon: Icon(Icons.account_box),
+                      ),
+                      controller: doneQtyController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                 ),
-                TextField(
-                  controller: doneQtyController,
-                ),
-              ],
+              ),
             ),
             actions: [
               TextButton(
                   onPressed: () => navigator.pop(),
                   child: const Text('Cancel')),
-              TextButton(
+              ElevatedButton(
                   onPressed: () async {
                     // print(transferMove!['product_uom']);
                     // print('SAVE $transferMove and ${doneQtyController.text}');
-                    var res = await _transferService.createTransferMoveLine(
-                        context.read<OdooClient>(),
-                        args: {
-                          'picking_id': transferMove!['picking_id'][0],
-                          'move_id': transferMove['id'],
-                          'location_dest_id': transferMove['location_dest_id']
-                              [0],
-                          'location_id': transferMove['location_id'][0],
-                          'product_id': transferMove['product_id'][0],
-                          'product_uom_id': transferMove['product_uom'][0],
-                          'lot_name': serialNumberController.text,
-                          'qty_done': int.parse(doneQtyController.text)
-                        });
-                    navigator.pop();
-
-                    print('Response : ${res.toString()}');
+                    if (alertFormKey.currentState!.validate()) {
+                      var res = await _transferService.createTransferMoveLine(
+                          context.read<OdooClient>(),
+                          args: {
+                            'picking_id': transferMove!['picking_id'][0],
+                            'move_id': transferMove['id'],
+                            'location_dest_id': transferMove['location_dest_id']
+                                [0],
+                            'location_id': transferMove['location_id'][0],
+                            'product_id': transferMove['product_id'][0],
+                            'product_uom_id': transferMove['product_uom'][0],
+                            'lot_name': serialNumberController.text,
+                            'qty_done': int.parse(doneQtyController.text)
+                          });
+                      navigator.pop();
+                      print('Response : ${res.toString()}');
+                    }
                   },
                   child: const Text('Save')),
             ],
@@ -86,7 +136,7 @@ class _PurchaseTransferMoveState extends State<PurchaseTransferMove> {
       ['move_id.id', '=', _transferMove!['id']],
       ['product_qty', '=', 0]
     ]);
-    print('Transfer move : $_transferMove');
+    // print('Transfer move : $_transferMove');
     return Scaffold(
       appBar: AppBar(
         title: Text('Transfer Move - ${_transferMove!['name']}'),
@@ -95,6 +145,7 @@ class _PurchaseTransferMoveState extends State<PurchaseTransferMove> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -168,8 +219,7 @@ class _PurchaseTransferMoveState extends State<PurchaseTransferMove> {
                             child: DataTable(
                               // border: TableBorder.all(width: 1),
                               columns: const [
-                                DataColumn(
-                                    label: Text('Lot/Serial Number Name')),
+                                DataColumn(label: Text('Lot/Serial Number')),
                                 DataColumn(label: Text('Done'), numeric: true),
                               ],
                               rows: dataRows,
@@ -185,7 +235,8 @@ class _PurchaseTransferMoveState extends State<PurchaseTransferMove> {
                   return const CircularProgressIndicator();
                 }
               },
-            )
+            ),
+            Text('Scan result: $_scanBarcode'),
           ],
         ),
       ),
@@ -193,7 +244,7 @@ class _PurchaseTransferMoveState extends State<PurchaseTransferMove> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: () {
+            onPressed: () async {
               handleTransferMoveLineScanCreate();
             },
             heroTag: null,

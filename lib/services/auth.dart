@@ -23,8 +23,13 @@ class AuthService {
       // odooClientInstance.sessionStream;
       session = await odooClientInstance!.authenticate(db, login, password);
       return session;
+    } on OdooException catch (e) {
+      // print(e.toString());
+      throw Exception('Check configuration');
+      return null;
     } catch (e) {
-      print(e.toString());
+      // print(e.toString());
+      throw Exception('Something went wrong !');
       return null;
     }
   }

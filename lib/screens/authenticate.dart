@@ -17,6 +17,10 @@ class _AuthenticateState extends State<Authenticate> {
     setState(() => loading = state);
   }
 
+  void setError(String err) {
+    setState(() => error = err);
+  }
+
   @override
   Widget build(BuildContext context) {
     return loading
@@ -38,6 +42,7 @@ class _AuthenticateState extends State<Authenticate> {
                   const SizedBox(height: 25),
                   // Form fields
                   LoginForm(setLoading: setLoading),
+                  Text(error),
                 ],
               ),
             ),

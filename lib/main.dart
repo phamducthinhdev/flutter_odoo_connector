@@ -28,7 +28,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Odoo Connector',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primarySwatch: const MaterialColor(0xFF714B67, {
+          50: Color(0xFFeee9ed),
+          100: Color(0xFFd4c9d1),
+          200: Color(0xFFb8a5b3),
+          300: Color(0xFF9c8195),
+          400: Color(0xFF86667e),
+          500: Color(0xFF714B67),
+          600: Color(0xFF69445f),
+          700: Color(0xFF5e3b54),
+          800: Color(0xFF54334a),
+          900: Color(0xFF422339)
+        }),
       ),
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
