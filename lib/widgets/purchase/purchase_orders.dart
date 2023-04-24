@@ -36,13 +36,17 @@ class _PurchaseOrdersState extends State<PurchaseOrders> {
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
                 final record = snapshot.data[index] as Map<String, dynamic>;
-                // return Text(record['name']);
-                return ListTile(
-                  leading: const Icon(Icons.article),
-                  title: Text(record['name']),
-                  // subtitle: record,
-                  trailing: const Icon(Icons.navigate_next),
-                );
+                return Column(children: [
+                  ListTile(
+                    leading: const Icon(Icons.article),
+                    title: Text(record['name']),
+                    trailing: const Icon(Icons.navigate_next),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Divider(),
+                  )
+                ]);
               },
             );
           } else {

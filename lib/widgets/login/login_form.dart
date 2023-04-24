@@ -88,8 +88,15 @@ class _LoginFormState extends State<LoginForm> {
             obscureText: true,
           ),
           const SizedBox(height: 25),
-          Text(error),
-          const SizedBox(height: 25),
+          error.isEmpty
+              ? const SizedBox.shrink()
+              : Column(
+                  children: [
+                    Text(error),
+                    const SizedBox(height: 25),
+                  ],
+                ),
+
           // Sign in button
           ElevatedButton(
               onPressed: () {

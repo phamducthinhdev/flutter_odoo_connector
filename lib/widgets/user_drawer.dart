@@ -25,7 +25,7 @@ class UserDrawer extends StatelessWidget {
             leading: const Icon(Icons.credit_card),
             title: const Text('Purchase'),
             onTap: () {
-              Navigator.of(context).pushNamed('/purchase');
+              Navigator.of(context).popAndPushNamed('/purchase');
             },
           ),
           ListTile(

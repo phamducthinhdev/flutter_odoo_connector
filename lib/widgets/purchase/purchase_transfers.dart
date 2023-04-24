@@ -26,9 +26,7 @@ class _PurchaseTransfersState extends State<PurchaseTransfers> {
       [
         ['picking_type_id.code', '=', 'incoming']
       ]
-    ], kwargs: {
-      'order': 'id desc'
-    });
+    ]);
   }
 
   @override
@@ -42,23 +40,21 @@ class _PurchaseTransfersState extends State<PurchaseTransfers> {
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
                 final record = snapshot.data[index] as Map<String, dynamic>;
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.article),
-                      title: Text(record['name']),
-                      trailing: const Icon(Icons.navigate_next),
-                      onTap: () {
-                        Navigator.of(context).pushNamed('/purchase/transfer',
-                            arguments: {"record": record});
-                      },
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Divider(),
-                    )
-                  ],
-                );
+                return Column(children: [
+                  ListTile(
+                    leading: const Icon(Icons.article),
+                    title: Text(record['name']),
+                    trailing: const Icon(Icons.navigate_next),
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/purchase/transfer',
+                          arguments: {"record": record});
+                    },
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Divider(),
+                  )
+                ]);
               },
             );
           } else {
